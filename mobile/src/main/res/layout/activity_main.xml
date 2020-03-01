@@ -1,0 +1,897 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="top|center"
+    android:background="#E5E5E5"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:id="@+id/sensorLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:baselineAligned="false"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:foregroundGravity="center"
+                        android:text="Sensors"
+                        android:textSize="18sp"
+                        android:textStyle="italic" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp">
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/phoneSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/phoneImageContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+
+                                <ImageView
+                                    android:id="@+id/phoneImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/gyroscope" />
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/phoneLbl"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="Phone Sensors"
+                                android:textColor="#737373" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/phoneCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/polarSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:background="#F5F5F6"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/polarImageContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/polarImage"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/smartwatch_polar" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/polarLbl"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Polar" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/polarCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </TableRow>
+
+            </TableLayout>
+
+            <TableLayout
+                android:id="@+id/activityLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:baselineAligned="false"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/activitiesLbl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:foregroundGravity="center"
+                        android:text="Activities"
+                        android:textColor="#737373"
+                        android:textSize="18sp"
+                        android:textStyle="italic" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp">
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/washinghandsSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/washinghandsImageContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+
+                                <ImageView
+                                    android:id="@+id/washinghandsImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/elevator_up" />
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/washinghandsLbl"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="Elevator Up"
+                                android:textColor="#737373" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/washinghandsCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/brushingteethSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/brushingteethContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/brushingteethImage"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/elevator_down" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/brushingteethLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Elevator Down" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/_checkbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp">
+
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/eatingSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/eatingContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/eatingImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/standing" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/eatingLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Standing" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/eatingCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/drinkingSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/drinkingContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/drinkingImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/sitting" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/drinkingLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Sitting" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/drinkingCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp">
+
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/clapSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/clapContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/clapImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/running" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/clapLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Running" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/clapCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/walkingSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/walkingContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/walkingImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/walking" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/walkingLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Walking" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/walkingCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp">
+
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/upstairsSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/upstairsContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/upstairsImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/climbing_stairs" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/upstairsLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Climbing Stairs" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/upstairsCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/descendstairsSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/descendstairsContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/descendstairsImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/descend_stairs" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/descendstairsLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Descending Stairs" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/descendstairsCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp">
+
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/nothingSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/nothingContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/nothingImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/nothing" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/nothingLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Nothing" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/nothingCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/otherSelect"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:background="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/otherContainer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="2dp"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/otherImg"
+                                    android:layout_width="128px"
+                                    android:layout_height="128px"
+                                    android:layout_centerInParent="true"
+                                    android:contentDescription="@string/pebble_img_description"
+                                    android:src="@drawable/questionmark" />
+
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/otherLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:gravity="center"
+                                android:text="Other" />
+
+                        </LinearLayout>
+
+                        <CheckBox
+                            android:id="@+id/otherCheckbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:button="@null"
+                            android:foregroundGravity="center"
+                            android:gravity="center" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </TableRow>
+
+            </TableLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:paddingBottom="5dp"
+                    android:text="@string/app_restart_prompt"
+                    android:textColor="#F03434"
+                    android:textSize="16sp"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/otherActivityLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#DCDCDF"
+                android:textSize="20sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</RelativeLayout>

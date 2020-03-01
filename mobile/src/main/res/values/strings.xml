@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Polar Data Collection</string>
+    <string name="action_upload">Upload data</string>
+    <string name="action_settings">Sensors</string>
+    <string name="action_logout">Logout</string>
+    <string-array name="activities">
+        <item>Nothing</item>
+        <item>Washing Hands</item>
+        <item>Brushing Teeth</item>
+        <!--<item>Rubbing Hands Together</item>
+        <item>Right Over Left Interlace</item>
+        <item>Left Over Right Interlace</item>
+        <item>Right And Left Interlace</item>
+        <item>Rubbing Hands rotation</item>
+        <item>Applying Soap</item>
+        <item>Shaking Hands to Get Rid of Water</item>
+        <item>Grabbing Paper Towel</item>
+        <item>Drying Hands</item>-->
+        <item>Washing Dishes</item>
+        <item>Other</item>
+    </string-array>
+    <string name="other_activity">What activity are you doing?</string>
+    <string name="pebble_start">Start Pebble</string>
+    <string name="activity_prompt">Activity</string>
+    <string name="activity_prompt_colon">Activity:</string>
+    <string name="collecting_text">Collecting...</string>
+    <string name="select_activity_prompt">Please select an activity</string>
+    <string name="app_restart_prompt">Please restart the app</string>
+    <string name="app_name_prompt">Please enter your name</string>
+    <string name="pebble_img_description">Pebble Image</string>
+    <string name="file_prompt">Name:</string>
+</resources>
