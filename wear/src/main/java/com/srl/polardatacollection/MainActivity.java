@@ -24,6 +24,7 @@ public class MainActivity extends WearableActivity {
     public final static short TYPE_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
     public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
     public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
+    public final static short TYPE_HEART = Sensor.TYPE_HEART_RATE;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_WEAR";
     public static String FILENAME = "com.srl.polardatacollection.FILENAME_WEAR";

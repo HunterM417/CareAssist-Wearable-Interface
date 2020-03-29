@@ -34,6 +34,7 @@ public class SensorService extends Service implements SensorEventListener {
     Sensor accelerometer;
     Sensor gyroscope;
     Sensor gravity;
+    Sensor heartRate;
 
     float[] accelerometerMatrix = new float[3];
     float[] gyroscopeMatrix = new float[3];
@@ -55,6 +56,7 @@ public class SensorService extends Service implements SensorEventListener {
         accelerometer = sensorManager.getDefaultSensor(MainActivity.TYPE_ACCELEROMETER);
         gyroscope = sensorManager.getDefaultSensor(MainActivity.TYPE_GYROSCOPE);
         gravity = sensorManager.getDefaultSensor(MainActivity.TYPE_GRAVITY);
+        heartRate = sensorManager.getDefaultSensor(MainActivity.TYPE_HEART);
     }
 
     @Override
@@ -76,6 +78,7 @@ public class SensorService extends Service implements SensorEventListener {
         sensorManager.registerListener(this, accelerometer, 50000);
         sensorManager.registerListener(this, gyroscope, 50000);
         sensorManager.registerListener(this, gravity, 50000);
+        sensorManager.registerListener(this, heartRate, 50000);
     }
 
     private void unregisterListener() {
