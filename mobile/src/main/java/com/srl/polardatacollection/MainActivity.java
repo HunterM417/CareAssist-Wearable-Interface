@@ -7,8 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.cardview.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -19,15 +19,34 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import androidx.cardview.widget.CardView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+import com.mongodb.stitch.android.core.Stitch;
+import com.mongodb.stitch.android.core.StitchAppClient;
+import com.mongodb.stitch.android.core.auth.StitchUser;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
+import com.mongodb.stitch.core.auth.StitchCredential;
+import com.mongodb.stitch.core.auth.StitchUserIdentity;
+import com.mongodb.stitch.core.auth.StitchUserProfile;
+import com.mongodb.stitch.core.auth.UserType;
+import com.mongodb.stitch.core.auth.internal.CoreStitchUser;
+import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
 
+import org.bson.Document;
+
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,9 +62,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     //Set the specific sensors to be used throughout the app
     public final static short TYPE_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
-    public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
-    public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
-    public final static short TYPE_MAGNETIC = Sensor.TYPE_MAGNETIC_FIELD;
+    //public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
+    //public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
+    //public final static short TYPE_MAGNETIC = Sensor.TYPE_MAGNETIC_FIELD;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_PHONE";
     public static String FILENAME = "com.srl.polardatacollection.FILENAME_PHONE";
@@ -72,6 +91,33 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
+
+        //Step 5
+        Stitch.initializeDefaultAppClient(getString(R.string.my_app_id));
+
+        final StitchAppClient stitchAppClient = Stitch.getDefaultAppClient();
+
+        AnonymousCredential credential = new AnonymousCredential();
+        stitchAppClient.getAuth().loginWithCredential(credential).addOnSuccessListener(new OnSuccessListener<StitchUser>() {
+            @Override
+            public void onSuccess(StitchUser user){
+                //Step 6
+                RemoteMongoClient mongoClient = stitchAppClient.getServiceClient(
+                        RemoteMongoClient.factory,
+                        "mongodb-atlas"
+                );
+
+                RemoteMongoCollection myCollection = mongoClient.getDatabase("patients")
+                        .getCollection("data");
+
+                Document myFirstDocument = new Document();
+                myFirstDocument.put("testName", "Mike Hawk");
+                myFirstDocument.put("user_id", user.getId());
+
+                myCollection.insertOne(myFirstDocument);
+            }
+        });
+
 
     }
 
@@ -402,5 +448,47 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         super.onNewIntent(intent);
+    }
+}
+
+final class MongoLabSaveContact extends AsyncTask<Object, Void, Boolean> {
+    @Override
+    protected Boolean doInBackground(Object... params) {
+        MyEntry entry = (MyEntry) params[0];
+        Log.d("entry", ""+entry);
+
+        try {
+            SupportData sd = new SupportData();
+            URL url = new URL(sd.buildEntriesSaveURL());
+
+            HttpURLConnection connection = (HttpURLConnection) url
+                    .openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type",
+                    "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+
+            OutputStreamWriter osw = new OutputStreamWriter(
+                    connection.getOutputStream());
+
+            osw.write(sd.createEntry(entry));
+            osw.flush();
+            osw.close();
+
+            if(connection.getResponseCode() <205)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        } catch (Exception e) {
+            e.getMessage();
+            Log.d("Got error", e.getMessage());
+            return false;
+        }
     }
 }
