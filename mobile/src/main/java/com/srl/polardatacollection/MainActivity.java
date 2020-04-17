@@ -19,11 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.MessageApi;
@@ -35,12 +38,11 @@ import com.mongodb.stitch.android.core.StitchAppClient;
 import com.mongodb.stitch.android.core.auth.StitchUser;
 import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
 import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
-import com.mongodb.stitch.core.auth.StitchCredential;
-import com.mongodb.stitch.core.auth.StitchUserIdentity;
-import com.mongodb.stitch.core.auth.StitchUserProfile;
-import com.mongodb.stitch.core.auth.UserType;
-import com.mongodb.stitch.core.auth.internal.CoreStitchUser;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoDatabase;
 import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
 
 import org.bson.Document;
 
@@ -50,6 +52,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 /*
 TO DO
@@ -71,11 +75,20 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     public static final String START_ACTIVITY_PATH = "/start/MainActivity";
     public static final String STOP_ACTIVITY_PATH = "/stop/MainActivity";
 
-
+    private static boolean POLAR = false;
     private Intent intentSensing;
 
     private TextView activitySelected;// = "Nothing";
     private GoogleApiClient mGoogleApiClient;
+
+    public static StitchAppClient client =
+            Stitch.initializeDefaultAppClient("teststitchapp-agxuf");
+
+    public static RemoteMongoClient mongoClient =
+            client.getServiceClient(RemoteMongoClient.factory, "watch-db");
+
+    public static RemoteMongoCollection<Document> coll =
+            mongoClient.getDatabase("patients").getCollection("newData");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,33 +104,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
-
-        //Step 5
-        Stitch.initializeDefaultAppClient(getString(R.string.my_app_id));
-
-        final StitchAppClient stitchAppClient = Stitch.getDefaultAppClient();
-
-        AnonymousCredential credential = new AnonymousCredential();
-        stitchAppClient.getAuth().loginWithCredential(credential).addOnSuccessListener(new OnSuccessListener<StitchUser>() {
-            @Override
-            public void onSuccess(StitchUser user){
-                //Step 6
-                RemoteMongoClient mongoClient = stitchAppClient.getServiceClient(
-                        RemoteMongoClient.factory,
-                        "mongodb-atlas"
-                );
-
-                RemoteMongoCollection myCollection = mongoClient.getDatabase("patients")
-                        .getCollection("data");
-
-                Document myFirstDocument = new Document();
-                myFirstDocument.put("testName", "Mike Hawk");
-                myFirstDocument.put("user_id", user.getId());
-
-                myCollection.insertOne(myFirstDocument);
-            }
-        });
-
 
     }
 
@@ -393,6 +379,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private void startPolar(String curFilename, String curActivity) {
         Log.d(TAG, "Starting Polar...");
+        POLAR = true;
 
         if (activitySelected == null){
             curActivity = "Nothing";
@@ -428,6 +415,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private void stopPolar() {
         Log.d(TAG, "Stopping Polar...");
+        POLAR = false;
 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override

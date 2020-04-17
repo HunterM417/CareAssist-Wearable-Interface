@@ -15,6 +15,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -27,4 +31,6 @@ dependencies {
     implementation 'androidx.wear:wear:1.0.0'
     compileOnly 'com.google.android.wearable:wearable:2.4.0'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-3'
+    implementation 'org.mongodb:stitch-android-sdk:4.5.0'
+    implementation 'com.android.support:wear:28.1.0'
 }

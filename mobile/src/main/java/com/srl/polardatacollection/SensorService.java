@@ -10,10 +10,27 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.util.Log;
+
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.mongodb.lang.NonNull;
+import com.mongodb.stitch.android.core.Stitch;
+import com.mongodb.stitch.android.core.StitchAppClient;
+import com.mongodb.stitch.android.core.auth.StitchUser;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
+import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
+
+import org.bson.Document;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SensorService extends Service implements SensorEventListener {
 
@@ -22,6 +39,15 @@ public class SensorService extends Service implements SensorEventListener {
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_PHONE";
     public static String FILENAME = "com.srl.polardatacollection.FILENAME_PHONE";
+
+    /*public static StitchAppClient client =
+            Stitch.initializeDefaultAppClient("teststitchapp-agxuf");
+
+    public static RemoteMongoClient mongoClient =
+            client.getServiceClient(RemoteMongoClient.factory, "watch-db");
+
+    public static RemoteMongoCollection<Document> coll =
+            mongoClient.getDatabase("patients").getCollection("newData");*/
 
     private long lastUpdate = -1;
     long curTime;
@@ -55,17 +81,18 @@ public class SensorService extends Service implements SensorEventListener {
         //gyroscope = sensorManager.getDefaultSensor(MainActivity.TYPE_GYROSCOPE);
         //gravity = sensorManager.getDefaultSensor(MainActivity.TYPE_GRAVITY);
         //magnetic = sensorManager.getDefaultSensor(MainActivity.TYPE_MAGNETIC);
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if (!intent.getStringExtra(FILENAME).isEmpty()) {
-            filename = intent.getStringExtra(FILENAME);
+        if (!FILENAME.isEmpty()) {
+            filename = FILENAME;
         }
 
-        activity = intent.getStringExtra(ACTIVITY);
+        activity = ACTIVITY;
 
         System.out.println("Starting service");
         registerListener();
@@ -137,7 +164,58 @@ public class SensorService extends Service implements SensorEventListener {
 
             string_coordinates[string_coordinates.length - 1] = activity;
             save_file(string_coordinates, filename);
-            post_to_db(string_coordinates);
+            Log.d("Coordinates", string_coordinates[string_coordinates.length - 1]);
+            Log.d("Coordinates length", Integer.toString(string_coordinates.length));
+
+            MainActivity.client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
+                    new Continuation<StitchUser, Task<RemoteInsertOneResult>>() {
+                        @Override
+                        public Task<RemoteInsertOneResult> then(@NonNull Task<StitchUser> task) throws Exception {
+                            if (!task.isSuccessful()) {
+                                Log.e("STITCH", "Login failed!");
+                                throw task.getException();
+                            }
+
+                            final Document insertDoc = new Document(
+                                    "owner_id",
+                                    task.getResult().getId()
+                            );
+
+                            insertDoc.put("time", string_coordinates[0]);
+                            insertDoc.put("heartrate", 0);
+                            insertDoc.put("accelerometerX", string_coordinates[1]);
+                            insertDoc.put("accelerometerY", string_coordinates[2]);
+                            insertDoc.put("accelerometerZ", string_coordinates[3]);
+                            insertDoc.put("longitude", 0);
+                            insertDoc.put("latitude", 0);
+                            insertDoc.put("activity_type", string_coordinates[4]);
+                            return MainActivity.coll.insertOne(insertDoc);
+                        }
+                    }
+            ).continueWithTask(new Continuation<RemoteInsertOneResult, Task<List<Document>>>() {
+                @Override
+                public Task<List<Document>> then(@NonNull Task<RemoteInsertOneResult> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        Log.e("STITCH", "Update failed!");
+                        throw task.getException();
+                    }
+                    List<Document> docs = new ArrayList<>();
+                    return MainActivity.coll
+                            .find(new Document("owner_id", 0))
+                            .into(docs);
+                }
+            }).addOnCompleteListener(new OnCompleteListener<List<Document>>() {
+                @Override
+                public void onComplete(@NonNull Task<List<Document>> task) {
+                    if (task.isSuccessful()) {
+                        Log.d("STITCH", "Found docs: " + task.getResult().toString());
+                        return;
+                    }
+                    Log.e("STITCH", "Error: " + task.getException().toString());
+                    task.getException().printStackTrace();
+                }
+            });
+
         }
     }
 
@@ -178,10 +256,6 @@ public class SensorService extends Service implements SensorEventListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void post_to_db(String[] coordinates) {
-        //CODE TO POST DATA TO DB
     }
 
     @Override

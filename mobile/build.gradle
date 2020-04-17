@@ -16,6 +16,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -29,5 +33,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-wearable:+'
     implementation 'androidx.cardview:cardview:1.0.0'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-3'
-    implementation 'org.mongodb:stitch-android-sdk:4.0.5'
+    implementation 'org.mongodb:stitch-android-sdk:4.5.0'
 }
