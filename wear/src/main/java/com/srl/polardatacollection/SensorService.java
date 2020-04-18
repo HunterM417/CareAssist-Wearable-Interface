@@ -48,13 +48,13 @@ public class SensorService extends Service implements SensorEventListener {
     public static String FILENAME = "com.srl.polardatacollection.FILENAME_WEAR";
 
     public static StitchAppClient client =
-            Stitch.initializeDefaultAppClient("teststitchapp-agxuf");
+            Stitch.initializeDefaultAppClient("careassiststitchapp-owlqs");
 
     public static RemoteMongoClient mongoClient =
-            client.getServiceClient(RemoteMongoClient.factory, "watch-db");
+            client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
 
     public static RemoteMongoCollection<Document> coll =
-            mongoClient.getDatabase("patients").getCollection("newData");
+            mongoClient.getDatabase("patients").getCollection("data");
 
     private long lastUpdate = -1;
     long curTime;
@@ -187,6 +187,7 @@ public class SensorService extends Service implements SensorEventListener {
                                     task.getResult().getId()
                             );
 
+                            insertDoc.put("patient_id", 1);
                             insertDoc.put("time", string_coordinates[0]);
                             insertDoc.put("heartrate", string_coordinates[4]);
                             insertDoc.put("accelerometerX", string_coordinates[1]);

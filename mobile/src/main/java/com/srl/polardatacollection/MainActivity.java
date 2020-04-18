@@ -82,13 +82,13 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private GoogleApiClient mGoogleApiClient;
 
     public static StitchAppClient client =
-            Stitch.initializeDefaultAppClient("teststitchapp-agxuf");
+            Stitch.initializeDefaultAppClient("careassiststitchapp-owlqs");
 
     public static RemoteMongoClient mongoClient =
-            client.getServiceClient(RemoteMongoClient.factory, "watch-db");
+            client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
 
     public static RemoteMongoCollection<Document> coll =
-            mongoClient.getDatabase("patients").getCollection("newData");
+            mongoClient.getDatabase("patients").getCollection("data");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
