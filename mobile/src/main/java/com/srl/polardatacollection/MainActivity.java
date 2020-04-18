@@ -7,8 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.cardview.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -19,18 +19,41 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+import com.mongodb.stitch.android.core.Stitch;
+import com.mongodb.stitch.android.core.StitchAppClient;
+import com.mongodb.stitch.android.core.auth.StitchUser;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoDatabase;
+import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
 
+import org.bson.Document;
+
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 /*
 TO DO
@@ -43,20 +66,29 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     //Set the specific sensors to be used throughout the app
     public final static short TYPE_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
-    public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
-    public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
-    public final static short TYPE_MAGNETIC = Sensor.TYPE_MAGNETIC_FIELD;
+    //public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
+    //public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
+    //public final static short TYPE_MAGNETIC = Sensor.TYPE_MAGNETIC_FIELD;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_PHONE";
     public static String FILENAME = "com.srl.polardatacollection.FILENAME_PHONE";
     public static final String START_ACTIVITY_PATH = "/start/MainActivity";
     public static final String STOP_ACTIVITY_PATH = "/stop/MainActivity";
 
-
+    private static boolean POLAR = false;
     private Intent intentSensing;
 
     private TextView activitySelected;// = "Nothing";
     private GoogleApiClient mGoogleApiClient;
+
+    public static StitchAppClient client =
+            Stitch.initializeDefaultAppClient("careassiststitchapp-owlqs");
+
+    public static RemoteMongoClient mongoClient =
+            client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
+
+    public static RemoteMongoCollection<Document> coll =
+            mongoClient.getDatabase("patients").getCollection("data");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -347,6 +379,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private void startPolar(String curFilename, String curActivity) {
         Log.d(TAG, "Starting Polar...");
+        POLAR = true;
 
         if (activitySelected == null){
             curActivity = "Nothing";
@@ -382,6 +415,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private void stopPolar() {
         Log.d(TAG, "Stopping Polar...");
+        POLAR = false;
 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
@@ -402,5 +436,47 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         super.onNewIntent(intent);
+    }
+}
+
+final class MongoLabSaveContact extends AsyncTask<Object, Void, Boolean> {
+    @Override
+    protected Boolean doInBackground(Object... params) {
+        MyEntry entry = (MyEntry) params[0];
+        Log.d("entry", ""+entry);
+
+        try {
+            SupportData sd = new SupportData();
+            URL url = new URL(sd.buildEntriesSaveURL());
+
+            HttpURLConnection connection = (HttpURLConnection) url
+                    .openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type",
+                    "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+
+            OutputStreamWriter osw = new OutputStreamWriter(
+                    connection.getOutputStream());
+
+            osw.write(sd.createEntry(entry));
+            osw.flush();
+            osw.close();
+
+            if(connection.getResponseCode() <205)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        } catch (Exception e) {
+            e.getMessage();
+            Log.d("Got error", e.getMessage());
+            return false;
+        }
     }
 }
