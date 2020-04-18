@@ -22,8 +22,8 @@ public class MainActivity extends WearableActivity {
 
     //Set the specific sensors to be used throughout the app
     public final static short TYPE_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
-    public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
-    public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
+    //public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
+    //public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
     public final static short TYPE_HEART = Sensor.TYPE_HEART_RATE;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_WEAR";
