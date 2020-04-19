@@ -1,6 +1,6 @@
 package com.srl.polardatacollection;
 
-
+import android.content.Context;
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -84,11 +84,9 @@ public class SensorService extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(MainActivity.TYPE_ACCELEROMETER);
-        //gyroscope = sensorManager.getDefaultSensor(MainActivity.TYPE_GYROSCOPE);
-        //gravity = sensorManager.getDefaultSensor(MainActivity.TYPE_GRAVITY);
-        heartRate = sensorManager.getDefaultSensor(MainActivity.TYPE_HEART);
+        heartRate = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
     }
 
     @Override
@@ -108,9 +106,7 @@ public class SensorService extends Service implements SensorEventListener {
 
     private void registerListener() {
         sensorManager.registerListener(this, accelerometer, 50000);
-        //sensorManager.registerListener(this, gyroscope, 50000);
-        //sensorManager.registerListener(this, gravity, 50000);
-        sensorManager.registerListener(this, heartRate, 50000);
+        sensorManager.registerListener(this, heartRate, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void unregisterListener() {
@@ -123,11 +119,7 @@ public class SensorService extends Service implements SensorEventListener {
         int i = sensor.getType();
         if (i == MainActivity.TYPE_ACCELEROMETER) {
             accelerometerMatrix = event.values;
-        }/* else if (i == MainActivity.TYPE_GYROSCOPE) {
-            gyroscopeMatrix = event.values;
-        } else if (i == MainActivity.TYPE_GRAVITY) {
-            gravityMatrix = event.values;
-        }*/ else if (i == MainActivity.TYPE_HEART) {
+        } else if (i == MainActivity.TYPE_HEART) {
             heartrateMatrix = event.values;
         }
 
