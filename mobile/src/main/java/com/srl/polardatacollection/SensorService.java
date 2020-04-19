@@ -224,7 +224,7 @@ public class SensorService extends Service implements SensorEventListener {
             // Adds a line to the trace file
             BufferedWriter writer = new BufferedWriter(new FileWriter(traceFile, true));
             if (!fileExists){
-                writer.write("Time,AccelerometerX,AccelerometerY,AccelerometerZ,Activity");
+                writer.write("Time,AccelerometerX,AccelerometerY,AccelerometerZ,Heartrate,Activity");
                 writer.newLine();
             }
 //            String linetowrite[] = new String[coordinates.length];

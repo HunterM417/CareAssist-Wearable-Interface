@@ -2,6 +2,7 @@ package com.srl.polardatacollection;
 
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class SensorService extends Service implements SensorEventListener {
 
@@ -84,11 +86,12 @@ public class SensorService extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(MainActivity.TYPE_ACCELEROMETER);
         //gyroscope = sensorManager.getDefaultSensor(MainActivity.TYPE_GYROSCOPE);
         //gravity = sensorManager.getDefaultSensor(MainActivity.TYPE_GRAVITY);
         heartRate = sensorManager.getDefaultSensor(MainActivity.TYPE_HEART);
+
     }
 
     @Override
@@ -121,6 +124,8 @@ public class SensorService extends Service implements SensorEventListener {
         sensor = event.sensor;
 
         int i = sensor.getType();
+        System.out.println(i);
+        System.out.println(MainActivity.TYPE_HEART);
         if (i == MainActivity.TYPE_ACCELEROMETER) {
             accelerometerMatrix = event.values;
         }/* else if (i == MainActivity.TYPE_GYROSCOPE) {
@@ -156,9 +161,12 @@ public class SensorService extends Service implements SensorEventListener {
             System.arraycopy(accelerometerMatrix, 0, coordinates, 0, accelerometerMatrix.length);
             //System.arraycopy(gyroscopeMatrix, 0, coordinates, accelerometerMatrix.length, gyroscopeMatrix.length);
             //System.arraycopy(gravityMatrix, 0, coordinates, accelerometerMatrix.length + gyroscopeMatrix.length, gravityMatrix.length);
-
+            System.arraycopy(heartrateMatrix, 0, coordinates, 0, heartrateMatrix.length);
 
             String[] string_coordinates = new String[coordinates.length + 2];
+
+            Random r = new Random();
+            coordinates[3] = r.nextInt(10) + 65;
 
             string_coordinates[0] = Long.toString(curTime);
 
