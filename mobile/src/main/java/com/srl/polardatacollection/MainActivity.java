@@ -1,30 +1,47 @@
 package com.srl.polardatacollection;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -55,11 +72,6 @@ import java.util.List;
 
 import static java.lang.Thread.sleep;
 
-/*
-TO DO
-Save sensor data
-Check if sensor Data can be taken from watch
-*/
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     public static final String TAG  = "MainActivity";
@@ -80,6 +92,12 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private TextView activitySelected;// = "Nothing";
     private GoogleApiClient mGoogleApiClient;
+    private FusedLocationProviderClient fusedLocationClient;
+    private BroadcastReceiver locationReceiver;
+    private TextView lonTextView;
+    private TextView latTextView;
+
+
 
     public static StitchAppClient client =
             Stitch.initializeDefaultAppClient("careassiststitchapp-owlqs");
@@ -96,7 +114,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+        latTextView = findViewById(R.id.LatLocation);
+        lonTextView= findViewById(R.id.LongLocation);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         init();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -104,10 +125,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
-
     }
 
     public void init() {
+
         intentSensing = new Intent(this, SensorService.class);
 
         //*************
@@ -230,6 +251,17 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
         polarSelect.setOnClickListener(sensorClick);
 
+        // Location
+        final CardView locationSelect = findViewById(R.id.locationSelect);
+
+        View.OnClickListener locationClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getLastLocation();
+            }
+        };
+        locationSelect.setOnClickListener(locationClick);
+
 
         //****************
         //***Activities***
@@ -326,6 +358,99 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d("GoogleApi", "onConnectionFailed: " + connectionResult);
+    }
+    @SuppressLint("MissingPermission")
+    private void getLastLocation() {
+        Log.d("LOCATION", "location");
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                Log.d("LOCATION", "enable");
+                fusedLocationClient.getLastLocation().addOnCompleteListener(
+                        new OnCompleteListener<Location>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Location> task) {
+                                Location location = task.getResult();
+                                if (location == null) {
+                                    latTextView.setText("0.0");
+                                    lonTextView.setText("0.0");
+                                    requestNewLocationData();
+                                } else {
+                                    latTextView.setText(location.getLatitude()+"");
+                                    lonTextView.setText(location.getLongitude()+"");
+                                    Log.d("LOCATION", ""+location.getLatitude());
+                                    Log.d("LOCATION", ""+location.getLongitude());
+
+                                }
+                            }
+                        }
+                );
+            } else {
+                Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        } else {
+            requestPermissions();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void requestNewLocationData(){
+        Log.d("LOCATION", "new location");
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(0);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setNumUpdates(1);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient.requestLocationUpdates(
+                mLocationRequest, mLocationCallback,
+                Looper.myLooper()
+        );
+
+    }
+
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            Location mLastLocation = locationResult.getLastLocation();
+            latTextView.setText(mLastLocation.getLatitude()+"");
+            lonTextView.setText(mLastLocation.getLongitude()+"");
+        }
+    };
+
+    private boolean checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        return false;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                44
+        );
+    }
+
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+                LocationManager.NETWORK_PROVIDER
+        );
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 44) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
+            }
+        }
     }
 
     private void startSensing(String filename, String otherActivity){
