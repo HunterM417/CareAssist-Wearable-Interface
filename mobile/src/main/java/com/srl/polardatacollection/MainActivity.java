@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -47,9 +48,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableListenerService;
 import com.mongodb.stitch.android.core.Stitch;
 import com.mongodb.stitch.android.core.StitchAppClient;
 import com.mongodb.stitch.android.core.auth.StitchUser;
@@ -94,19 +97,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private GoogleApiClient mGoogleApiClient;
     private FusedLocationProviderClient fusedLocationClient;
     private BroadcastReceiver locationReceiver;
-    private TextView lonTextView;
-    private TextView latTextView;
+    public static TextView lonTextView;
+    public static TextView latTextView;
+    private boolean locRunning = false;
 
-
-
-    public static StitchAppClient client =
-            Stitch.initializeDefaultAppClient("careassiststitchapp-owlqs");
-
-    public static RemoteMongoClient mongoClient =
-            client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
-
-    public static RemoteMongoCollection<Document> coll =
-            mongoClient.getDatabase("patients").getCollection("data");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +112,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         lonTextView= findViewById(R.id.LongLocation);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        getLastLocation();
         init();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -360,7 +355,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         Log.d("GoogleApi", "onConnectionFailed: " + connectionResult);
     }
     @SuppressLint("MissingPermission")
-    private void getLastLocation() {
+    public void getLastLocation() {
         Log.d("LOCATION", "location");
         if (checkPermissions()) {
             if (isLocationEnabled()) {
@@ -472,6 +467,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private void startPolar(String curFilename, String curActivity) {
         Log.d(TAG, "Starting Polar...");
         POLAR = true;
+        locRunning = true;
+        collectLocationData();
 
         if (activitySelected == null){
             curActivity = "Nothing";
@@ -508,6 +505,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private void stopPolar() {
         Log.d(TAG, "Stopping Polar...");
         POLAR = false;
+        locRunning = false;
 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
@@ -528,6 +526,23 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         super.onNewIntent(intent);
+    }
+
+    private void collectLocationData() {
+        new Thread(new Runnable() {
+            public void run() {
+                // a potentially time consuming task
+                while(locRunning) {
+                    try {
+                        getLastLocation();
+                        Thread.sleep(3000);
+                        Log.d("Sleep", "Success!!!");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 }
 
@@ -572,3 +587,4 @@ final class MongoLabSaveContact extends AsyncTask<Object, Void, Boolean> {
         }
     }
 }
+

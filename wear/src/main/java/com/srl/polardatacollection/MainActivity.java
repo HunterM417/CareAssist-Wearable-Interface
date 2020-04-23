@@ -10,7 +10,15 @@ import android.os.PowerManager;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
+
 import java.io.File;
+import java.util.List;
 
 public class MainActivity extends WearableActivity {
 
@@ -27,6 +35,8 @@ public class MainActivity extends WearableActivity {
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_WEAR";
     public static String FILENAME = "com.srl.polardatacollection.FILENAME_WEAR";
 
+    private static GoogleApiClient mGoogleApiClient;
+
     private Intent intentSensing;
     private PowerManager.WakeLock mWakeLock;
     String activity;
@@ -35,6 +45,12 @@ public class MainActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Google API for getting location from phone
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .build();
+        mGoogleApiClient.connect();
 
         // Enables Always-on
         setAmbientEnabled();
@@ -120,5 +136,33 @@ public class MainActivity extends WearableActivity {
     private void stopSensing(){
         Log.d(TAG, "Stopping Sensing...");
         stopService(intentSensing);
+    }
+
+    public static void getLocations() {
+        if (mGoogleApiClient == null)
+            return;
+
+        final PendingResult<NodeApi.GetConnectedNodesResult> nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient);
+        nodes.setResultCallback(result -> {
+            final List<Node> nodes1 = result.getNodes();
+            if (nodes1 != null) {
+                for (int i = 0; i< nodes1.size(); i++) {
+                    final Node node = nodes1.get(i);
+
+                    // You can just send a message
+                    Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), "/MESSAGE", null);
+
+                    // or you may want to also check check for a result:
+                    // final PendingResult<SendMessageResult> pendingSendMessageResult = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), "/MESSAGE", null);
+                    // pendingSendMessageResult.setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
+                    //      public void onResult(SendMessageResult sendMessageResult) {
+                    //          if (sendMessageResult.getStatus().getStatusCode()==WearableStatusCodes.SUCCESS) {
+                    //              // do something is successed
+                    //          }
+                    //      }
+                    // });
+                }
+            }
+        });
     }
 }

@@ -192,13 +192,12 @@ public class SensorService extends Service implements SensorEventListener {
                             insertDoc.put("accelerometerX", string_coordinates[1]);
                             insertDoc.put("accelerometerY", string_coordinates[2]);
                             insertDoc.put("accelerometerZ", string_coordinates[3]);
-                            insertDoc.put("longitude", 0);
-                            insertDoc.put("latitude", 0);
                             insertDoc.put("activity_type", string_coordinates[5]);
                             System.out.println("Sending update");
-                            return coll.insertOne(insertDoc);
 
-                            // SEND MESSAGE HERE
+                            // POST HERE
+                            MainActivity.getLocations();
+                            return coll.insertOne(insertDoc);
                         }
                     }
             ).continueWithTask(new Continuation<RemoteInsertOneResult, Task<List<Document>>>() {

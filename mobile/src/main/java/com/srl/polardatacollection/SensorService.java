@@ -157,57 +157,6 @@ public class SensorService extends Service implements SensorEventListener {
             save_file(string_coordinates, filename);
             Log.d("Coordinates", string_coordinates[string_coordinates.length - 1]);
             Log.d("Coordinates length", Integer.toString(string_coordinates.length));
-
-            MainActivity.client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
-                    new Continuation<StitchUser, Task<RemoteInsertOneResult>>() {
-                        @Override
-                        public Task<RemoteInsertOneResult> then(@NonNull Task<StitchUser> task) throws Exception {
-                            if (!task.isSuccessful()) {
-                                Log.e("STITCH", "Login failed!");
-                                throw task.getException();
-                            }
-
-                            final Document insertDoc = new Document(
-                                    "owner_id",
-                                    task.getResult().getId()
-                            );
-
-                            insertDoc.put("patient_id", 1);
-                            insertDoc.put("time", string_coordinates[0]);
-                            insertDoc.put("heartrate", 0);
-                            insertDoc.put("accelerometerX", string_coordinates[1]);
-                            insertDoc.put("accelerometerY", string_coordinates[2]);
-                            insertDoc.put("accelerometerZ", string_coordinates[3]);
-                            insertDoc.put("longitude", 0);
-                            insertDoc.put("latitude", 0);
-                            insertDoc.put("activity_type", string_coordinates[4]);
-                            return MainActivity.coll.insertOne(insertDoc);
-                        }
-                    }
-            ).continueWithTask(new Continuation<RemoteInsertOneResult, Task<List<Document>>>() {
-                @Override
-                public Task<List<Document>> then(@NonNull Task<RemoteInsertOneResult> task) throws Exception {
-                    if (!task.isSuccessful()) {
-                        Log.e("STITCH", "Update failed!");
-                        throw task.getException();
-                    }
-                    List<Document> docs = new ArrayList<>();
-                    return MainActivity.coll
-                            .find(new Document("owner_id", 0))
-                            .into(docs);
-                }
-            }).addOnCompleteListener(new OnCompleteListener<List<Document>>() {
-                @Override
-                public void onComplete(@NonNull Task<List<Document>> task) {
-                    if (task.isSuccessful()) {
-                        Log.d("STITCH", "Found docs: " + task.getResult().toString());
-                        return;
-                    }
-                    Log.e("STITCH", "Error: " + task.getException().toString());
-                    task.getException().printStackTrace();
-                }
-            });
-
         }
     }
 
