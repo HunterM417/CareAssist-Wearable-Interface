@@ -114,7 +114,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         //***Sensors***
         //*************
         final CardView polarSelect = findViewById(R.id.polarSelect);
-        final CardView phoneSelect = findViewById(R.id.phoneSelect);
 
         View.OnClickListener sensorClick = new View.OnClickListener(){
 
@@ -127,10 +126,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     case R.id.polarSelect:
                         tempClickedCheckbox = findViewById(R.id.polarCheckbox);
                         tempClickedLayout = findViewById(R.id.polarSelect);
-                        break;
-                    case R.id.phoneSelect:
-                        tempClickedCheckbox = findViewById(R.id.phoneCheckbox);
-                        tempClickedLayout = findViewById(R.id.phoneSelect);
                         break;
                 }
 
@@ -152,8 +147,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
                     if (clickedCheckbox.getId() == R.id.polarCheckbox) {
                         stopPolar();
-                    } else if(clickedCheckbox.getId() == R.id.phoneCheckbox) {
-                        stopSensing();
                     }
                 } else {
                     clickedCheckbox.setChecked(true);
@@ -236,24 +229,14 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         };
 
         polarSelect.setOnClickListener(sensorClick);
-        phoneSelect.setOnClickListener(sensorClick);
 
 
         //****************
         //***Activities***
         //****************
-        final CardView washinghandsSelect = findViewById(R.id.washinghandsSelect);
-        final CardView brushingteethSelect = findViewById(R.id.brushingteethSelect);
-        final CardView eatingSelect = findViewById(R.id.eatingSelect);
-        final CardView drinkingSelect = findViewById(R.id.drinkingSelect);
-        final CardView clapSelect = findViewById(R.id.clapSelect);
-        final CardView walkingSelect = findViewById(R.id.walkingSelect);
-        final CardView upstairsSelect = findViewById(R.id.upstairsSelect);
-        final CardView descendSelect = findViewById(R.id.descendstairsSelect);
-        final CardView nothingSelect = findViewById(R.id.nothingSelect);
         final CardView otherSelect = findViewById(R.id.otherSelect);
 
-        final List<CardView> activities = new ArrayList<>(Arrays.asList(washinghandsSelect, brushingteethSelect, eatingSelect, drinkingSelect, clapSelect, walkingSelect, upstairsSelect, descendSelect, nothingSelect, otherSelect));
+        final List<CardView> activities = new ArrayList<>(Arrays.asList(otherSelect));
 
         View.OnClickListener activityClick = new View.OnClickListener() {
 
@@ -263,7 +246,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     if (card.getId() == v.getId()){
                         card.setBackgroundColor(Color.parseColor("#00e676"));
                         activitySelected = ((TextView) ((LinearLayout) card.getChildAt(0)).getChildAt(1));//.getText().toString();
-                        final CheckBox phoneCheckbox = findViewById(R.id.phoneCheckbox);
                         final CheckBox polarCheckbox = findViewById(R.id.polarCheckbox);
                         if (activitySelected.getText().toString().equals("Other")) {
                             startSensing("", "");
@@ -294,8 +276,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                                                 //activitySelected = actualActivity;
                                                 if (polarCheckbox.isChecked()) {
                                                     startPolar("", actualActivity.getText().toString());
-                                                } else if (phoneCheckbox.isChecked()) {
-                                                    startSensing("", actualActivity.getText().toString());
                                                 }
                                             }
 
@@ -321,12 +301,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                         } else {
                             if (polarCheckbox.isChecked()) {
                                 startPolar("", activitySelected.getText().toString());
-                            } else if (phoneCheckbox.isChecked()) {
-                                startSensing("", "");
                             }
                         }
-
-
                     } else {
                         card.setBackgroundColor(Color.parseColor("#FFFFFF"));
                     }
@@ -334,15 +310,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             }
         };
 
-        washinghandsSelect.setOnClickListener(activityClick);
-        brushingteethSelect.setOnClickListener(activityClick);
-        eatingSelect.setOnClickListener(activityClick);
-        drinkingSelect.setOnClickListener(activityClick);
-        clapSelect.setOnClickListener(activityClick);
-        walkingSelect.setOnClickListener(activityClick);
-        upstairsSelect.setOnClickListener(activityClick);
-        descendSelect.setOnClickListener(activityClick);
-        nothingSelect.setOnClickListener(activityClick);
         otherSelect.setOnClickListener(activityClick);
     }
 
