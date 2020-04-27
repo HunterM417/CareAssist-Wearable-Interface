@@ -38,7 +38,7 @@ public class SensorService extends Service implements SensorEventListener {
     final short POLL_FREQUENCY = 3000; //in milliseconds
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_PHONE";
-    public static String FILENAME = "com.srl.polardatacollection.FILENAME_PHONE";
+    public static int PATIENT_ID = -1;
 
     private long lastUpdate = -1;
     long curTime;
@@ -56,7 +56,7 @@ public class SensorService extends Service implements SensorEventListener {
     //float[] gravityMatrix = new float[3];
     //float[] magneticMatrix = new float[3];
     //float[] rotationMatrix = new float[9];
-    String filename = "raw_data.csv";
+    int patient_id = -1;
     String activity = "Nothing";
 
     public IBinder onBind(Intent intent) {
@@ -79,8 +79,8 @@ public class SensorService extends Service implements SensorEventListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if (!FILENAME.isEmpty()) {
-            filename = FILENAME;
+        if (!Integer.toString(PATIENT_ID).isEmpty()) {
+            patient_id = PATIENT_ID;
         }
 
         activity = ACTIVITY;
@@ -154,7 +154,7 @@ public class SensorService extends Service implements SensorEventListener {
             }
 
             string_coordinates[string_coordinates.length - 1] = activity;
-            save_file(string_coordinates, filename);
+            save_file(string_coordinates, patient_id);
             Log.d("Coordinates", string_coordinates[string_coordinates.length - 1]);
             Log.d("Coordinates length", Integer.toString(string_coordinates.length));
         }
@@ -164,7 +164,7 @@ public class SensorService extends Service implements SensorEventListener {
 
     }
 
-    public void save_file(String[] coordinates, String filename) {
+    public void save_file(String[] coordinates, int filename) {
 
         try {
             File traceFile = new File(this.getExternalFilesDir(null), filename + ".csv");

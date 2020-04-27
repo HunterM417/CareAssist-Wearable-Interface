@@ -47,7 +47,7 @@ public class SensorService extends Service implements SensorEventListener {
     final short SAVE_FREQUENCY = 3000;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_WEAR";
-    public static String FILENAME = "com.srl.polardatacollection.FILENAME_WEAR";
+    public static int PATIENT_ID = -1;
 
     public static StitchAppClient client =
             Stitch.initializeDefaultAppClient("careassiststitchapp-owlqs");
@@ -95,9 +95,7 @@ public class SensorService extends Service implements SensorEventListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if (!intent.getStringExtra(FILENAME).isEmpty()) {
-            filename = intent.getStringExtra(FILENAME);
-        }
+        filename = intent.getStringExtra(Integer.toString(PATIENT_ID));
 
         activity = intent.getStringExtra(ACTIVITY);
 
@@ -156,8 +154,8 @@ public class SensorService extends Service implements SensorEventListener {
 
             String[] string_coordinates = new String[coordinates.length + 2];
 
-            Random r = new Random();
-            coordinates[3] = r.nextInt(10) + 65;
+            //Random r = new Random();
+            //coordinates[3] = r.nextInt(10) + 65;
 
             string_coordinates[0] = Long.toString(curTime);
 
@@ -186,13 +184,12 @@ public class SensorService extends Service implements SensorEventListener {
                                     task.getResult().getId()
                             );
 
-                            insertDoc.put("patient_id", 1);
+                            insertDoc.put("UID", MainActivity.PATIENT_ID);
                             insertDoc.put("time", string_coordinates[0]);
                             insertDoc.put("heartrate", string_coordinates[4]);
                             insertDoc.put("accelerometerX", string_coordinates[1]);
                             insertDoc.put("accelerometerY", string_coordinates[2]);
                             insertDoc.put("accelerometerZ", string_coordinates[3]);
-                            insertDoc.put("activity_type", string_coordinates[5]);
                             System.out.println("Sending update");
 
                             // POST HERE

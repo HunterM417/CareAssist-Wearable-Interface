@@ -86,7 +86,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     //public final static short TYPE_MAGNETIC = Sensor.TYPE_MAGNETIC_FIELD;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_PHONE";
-    public static String FILENAME = "com.srl.polardatacollection.FILENAME_PHONE";
+    public static int PATIENT_ID = -1;
     public static final String START_ACTIVITY_PATH = "/start/MainActivity";
     public static final String STOP_ACTIVITY_PATH = "/stop/MainActivity";
 
@@ -173,7 +173,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     @SuppressLint("Inflateparams")
                     final View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.filename_prompt, null);
 
-                    final EditText filename = dialogView.findViewById(R.id.activityPerformed);
+                    final EditText patient_id_text = dialogView.findViewById(R.id.activityPerformed);
                     final ToggleButton phoneLocBtn = dialogView.findViewById(R.id.phoneLocationBtn);
                     if (clickedCheckbox.getId() == R.id.polarCheckbox) {
                         phoneLocBtn.setTextOn("Right");
@@ -188,16 +188,23 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                                 public void onClick(DialogInterface dialog, int id) {
                                     TextView otherActivity = findViewById(R.id.otherActivityLabel);
                                     otherActivity.setVisibility(View.INVISIBLE);
-                                    if (filename.getText().toString().equals("")) {
+                                    if (patient_id_text.getText().toString().equals("")) {
                                         TextView error = findViewById(R.id.error);
                                         error.setText(R.string.app_name_prompt);
+                                        error.setVisibility(View.VISIBLE);
+                                        clickedCheckbox.toggle();
+                                        clickedLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                                    } else if (!isInteger(patient_id_text.getText().toString())) {
+                                        TextView error = findViewById(R.id.error);
+                                        error.setText(R.string.not_integer_prompt);
                                         error.setVisibility(View.VISIBLE);
                                         clickedCheckbox.toggle();
                                         clickedLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
                                     } else {
                                         TextView error = findViewById(R.id.error);
                                         error.setVisibility(View.INVISIBLE);
-                                        String dataFile = filename.getText().toString();
+                                        String dataFile = patient_id_text.getText().toString();
+                                        PATIENT_ID = Integer.parseInt(patient_id_text.getText().toString());
 
                                         if (clickedCheckbox.getId() == R.id.polarCheckbox) {
                                             if (phoneLocBtn.isChecked()) {
@@ -459,7 +466,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         }
 
         intentSensing.putExtra(ACTIVITY, activity);
-        intentSensing.putExtra(FILENAME, filename);
+        intentSensing.putExtra(ACTIVITY, activity);
+        intentSensing.putExtra(Integer.toString(PATIENT_ID), filename);
         startService(intentSensing);
 
     }
@@ -477,13 +485,13 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         }
 
         final String activity = curActivity;
-        final String filename = curFilename;
+        final String patient_id = curFilename;
 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
             public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
                 for (Node node : getConnectedNodesResult.getNodes()) {
-                    sendMessage(node.getId(), START_ACTIVITY_PATH + "/" + filename + "/" + activity);
+                    sendMessage(node.getId(), START_ACTIVITY_PATH + "/" + patient_id + "/" + activity);
                 }
             }
         });
@@ -543,6 +551,16 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 }
             }
         }).start();
+    }
+
+    private boolean isInteger( String input ) {
+        try {
+            Integer.parseInt( input );
+            return true;
+        }
+        catch( NumberFormatException e ) {
+            return false;
+        }
     }
 }
 

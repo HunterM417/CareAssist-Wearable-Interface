@@ -16,6 +16,8 @@ import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
 import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
 import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
 import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
 
 import org.bson.Document;
 
@@ -45,28 +47,35 @@ public class DataLayerListenerService extends WearableListenerService {
 
     public void postLocations(String longitude, String latitude) {
         client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
-                new Continuation<StitchUser, Task<RemoteInsertOneResult>>() {
+                new Continuation<StitchUser, Task<RemoteUpdateResult>>() {
                     @Override
-                    public Task<RemoteInsertOneResult> then(@NonNull Task<StitchUser> task) throws Exception {
+                    public Task<RemoteUpdateResult> then(@NonNull Task<StitchUser> task) throws Exception {
                         if (!task.isSuccessful()) {
                             Log.e("STITCH", "Login failed!");
                             throw task.getException();
                         }
 
-                        final Document insertDoc = new Document(
+                        /*final Document insertDoc = new Document(
                                 "owner_id",
                                 task.getResult().getId()
-                        );
+                        );*/
 
-                        insertDoc.put("patient_id", 1);
-                        insertDoc.put("longitude", longitude);
-                        insertDoc.put("latitude", latitude);
-                        return coll.insertOne(insertDoc);
+                        Document filterDoc = new Document().append("patient_id", MainActivity.PATIENT_ID);
+                        Document updateDoc = new Document();
+                        RemoteUpdateOptions upsertDoc = new RemoteUpdateOptions();
+                        upsertDoc.upsert(true);
+
+                        //insertDoc.put("patient_id", MainActivity.PATIENT_ID);
+                        updateDoc.put("owner_id", task.getResult().getId());
+                        updateDoc.put("UID", MainActivity.PATIENT_ID);
+                        updateDoc.put("longitude", longitude);
+                        updateDoc.put("latitude", latitude);
+                        return coll.updateOne(filterDoc, updateDoc, upsertDoc);
                     }
                 }
-        ).continueWithTask(new Continuation<RemoteInsertOneResult, Task<List<Document>>>() {
+        ).continueWithTask(new Continuation<RemoteUpdateResult, Task<List<Document>>>() {
             @Override
-            public Task<List<Document>> then(@NonNull Task<RemoteInsertOneResult> task) throws Exception {
+            public Task<List<Document>> then(@NonNull Task<RemoteUpdateResult> task) throws Exception {
                 if (!task.isSuccessful()) {
                     Log.e("STITCH", "Update failed!");
                     throw task.getException();

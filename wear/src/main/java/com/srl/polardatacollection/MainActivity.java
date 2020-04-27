@@ -33,7 +33,7 @@ public class MainActivity extends WearableActivity {
     public final static short TYPE_HEART = Sensor.TYPE_HEART_RATE;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_WEAR";
-    public static String FILENAME = "com.srl.polardatacollection.FILENAME_WEAR";
+    public static int PATIENT_ID = -1;
 
     private static GoogleApiClient mGoogleApiClient;
 
@@ -41,6 +41,7 @@ public class MainActivity extends WearableActivity {
     private PowerManager.WakeLock mWakeLock;
     String activity;
     String filename;
+    String patient_id_string;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +58,8 @@ public class MainActivity extends WearableActivity {
 
         newActivity = getIntent().getStringArrayExtra("NEW_ACTIVITY");
         filename = newActivity[0];
+        patient_id_string = filename.split("_")[0];
+        PATIENT_ID = Integer.parseInt(patient_id_string);
         activity = newActivity[1];
         finishReceiver = new BroadcastReceiver() {
             @Override
@@ -128,7 +131,7 @@ public class MainActivity extends WearableActivity {
         Log.d(TAG, "Starting Sensing...");
 
         intentSensing.putExtra(ACTIVITY, activity);
-        intentSensing.putExtra(FILENAME, filename);
+        intentSensing.putExtra(Integer.toString(PATIENT_ID), filename);
         startService(intentSensing);
 
     }
