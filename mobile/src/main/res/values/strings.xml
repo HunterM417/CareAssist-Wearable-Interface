@@ -26,7 +26,7 @@
     <string name="collecting_text">Collecting...</string>
     <string name="select_activity_prompt">Please select an activity</string>
     <string name="app_restart_prompt">Please restart the app</string>
-    <string name="app_name_prompt">Please enter your name</string>
+    <string name="app_id_prompt">Please enter your User ID</string>
     <string name="not_integer_prompt">Please enter a valid User ID</string>
     <string name="pebble_img_description">Pebble Image</string>
     <string name="file_prompt">Name:</string>

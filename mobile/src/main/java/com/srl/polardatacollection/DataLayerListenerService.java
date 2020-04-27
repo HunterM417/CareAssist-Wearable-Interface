@@ -15,7 +15,6 @@ import com.mongodb.stitch.android.core.auth.StitchUser;
 import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
 import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
 import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
-import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
 import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
 import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
 
@@ -33,7 +32,7 @@ public class DataLayerListenerService extends WearableListenerService {
             client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
 
     public static RemoteMongoCollection<Document> coll =
-            mongoClient.getDatabase("patients").getCollection("locations");
+            mongoClient.getDatabase("careAssist").getCollection("locations");
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
@@ -55,19 +54,14 @@ public class DataLayerListenerService extends WearableListenerService {
                             throw task.getException();
                         }
 
-                        /*final Document insertDoc = new Document(
-                                "owner_id",
-                                task.getResult().getId()
-                        );*/
-
-                        Document filterDoc = new Document().append("patient_id", MainActivity.PATIENT_ID);
+                        Document filterDoc = new Document().append("UID", Integer.toString(MainActivity.PATIENT_ID));
                         Document updateDoc = new Document();
                         RemoteUpdateOptions upsertDoc = new RemoteUpdateOptions();
                         upsertDoc.upsert(true);
 
                         //insertDoc.put("patient_id", MainActivity.PATIENT_ID);
                         updateDoc.put("owner_id", task.getResult().getId());
-                        updateDoc.put("UID", MainActivity.PATIENT_ID);
+                        updateDoc.put("UID", Integer.toString(MainActivity.PATIENT_ID));
                         updateDoc.put("longitude", longitude);
                         updateDoc.put("latitude", latitude);
                         return coll.updateOne(filterDoc, updateDoc, upsertDoc);
@@ -89,7 +83,7 @@ public class DataLayerListenerService extends WearableListenerService {
             @Override
             public void onComplete(@NonNull Task<List<Document>> task) {
                 if (task.isSuccessful()) {
-                    Log.d("STITCH", "Found docs: " + task.getResult().toString());
+                    Log.d("STITCH", "Location push successful");
                     return;
                 }
                 Log.e("STITCH", "Error: " + task.getException().toString());

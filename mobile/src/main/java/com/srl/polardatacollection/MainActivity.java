@@ -4,11 +4,9 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -17,13 +15,11 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -43,28 +39,12 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
-import com.google.android.gms.wearable.WearableListenerService;
-import com.mongodb.stitch.android.core.Stitch;
-import com.mongodb.stitch.android.core.StitchAppClient;
-import com.mongodb.stitch.android.core.auth.StitchUser;
-import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
-import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
-import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoDatabase;
-import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
-import com.mongodb.stitch.core.services.mongodb.remote.RemoteInsertOneResult;
-import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
-import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
-
-import org.bson.Document;
 
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -73,17 +53,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.Thread.sleep;
-
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     public static final String TAG  = "MainActivity";
 
     //Set the specific sensors to be used throughout the app
     public final static short TYPE_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
-    //public final static short TYPE_GYROSCOPE = Sensor.TYPE_GYROSCOPE;
-    //public final static short TYPE_GRAVITY = Sensor.TYPE_GRAVITY;
-    //public final static short TYPE_MAGNETIC = Sensor.TYPE_MAGNETIC_FIELD;
 
     public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_PHONE";
     public static int PATIENT_ID = -1;
@@ -96,7 +71,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private TextView activitySelected;// = "Nothing";
     private GoogleApiClient mGoogleApiClient;
     private FusedLocationProviderClient fusedLocationClient;
-    private BroadcastReceiver locationReceiver;
     public static TextView lonTextView;
     public static TextView latTextView;
     private boolean locRunning = false;
@@ -190,7 +164,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                                     otherActivity.setVisibility(View.INVISIBLE);
                                     if (patient_id_text.getText().toString().equals("")) {
                                         TextView error = findViewById(R.id.error);
-                                        error.setText(R.string.app_name_prompt);
+                                        error.setText(R.string.app_id_prompt);
                                         error.setVisibility(View.VISIBLE);
                                         clickedCheckbox.toggle();
                                         clickedLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
@@ -234,7 +208,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
                                     TextView error = findViewById(R.id.error);
-                                    error.setText(R.string.app_name_prompt);
+                                    error.setText(R.string.app_id_prompt);
                                     error.setVisibility(View.INVISIBLE);
 
                                     clickedCheckbox.toggle();
@@ -523,6 +497,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 }
             }
         });
+        stopSensing();
     }
 
     private void stopSensing(){

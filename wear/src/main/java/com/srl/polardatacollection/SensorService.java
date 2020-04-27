@@ -9,6 +9,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,7 +58,7 @@ public class SensorService extends Service implements SensorEventListener {
             client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
 
     public static RemoteMongoCollection<Document> coll =
-            mongoClient.getDatabase("patients").getCollection("data");
+            mongoClient.getDatabase("careAssist").getCollection("datas");
 
     private long lastUpdate = -1;
     long curTime;
@@ -82,6 +84,7 @@ public class SensorService extends Service implements SensorEventListener {
         return null;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCreate() {
         super.onCreate();
@@ -89,6 +92,13 @@ public class SensorService extends Service implements SensorEventListener {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(MainActivity.TYPE_ACCELEROMETER);
         heartRate = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+
+        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+        String res = "";
+        for(int i=0; i<sensors.size(); i++) {
+            res = res + sensors.get(i).toString();
+        }
+        Log.d("Sensors", res);
     }
 
     @Override
@@ -106,7 +116,7 @@ public class SensorService extends Service implements SensorEventListener {
 
     private void registerListener() {
         sensorManager.registerListener(this, accelerometer, 50000);
-        sensorManager.registerListener(this, heartRate, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, heartRate, 50000);
     }
 
     private void unregisterListener() {
@@ -154,8 +164,9 @@ public class SensorService extends Service implements SensorEventListener {
 
             String[] string_coordinates = new String[coordinates.length + 2];
 
-            //Random r = new Random();
-            //coordinates[3] = r.nextInt(10) + 65;
+            Log.d("Heartrate", String.valueOf(coordinates[3]));
+            Random r = new Random();
+            coordinates[3] = r.nextInt(10) + 65;
 
             string_coordinates[0] = Long.toString(curTime);
 
@@ -184,7 +195,7 @@ public class SensorService extends Service implements SensorEventListener {
                                     task.getResult().getId()
                             );
 
-                            insertDoc.put("UID", MainActivity.PATIENT_ID);
+                            insertDoc.put("UID", Integer.toString(MainActivity.PATIENT_ID));
                             insertDoc.put("time", string_coordinates[0]);
                             insertDoc.put("heartrate", string_coordinates[4]);
                             insertDoc.put("accelerometerX", string_coordinates[1]);
