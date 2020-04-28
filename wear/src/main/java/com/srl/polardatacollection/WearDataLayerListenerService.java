@@ -16,9 +16,8 @@ public class WearDataLayerListenerService extends WearableListenerService {
         if(messageEvent.getPath().contains(START_ACTIVITY_PATH)){
 
             String filename = messageEvent.getPath().split("/")[3];
-            String activity = messageEvent.getPath().split("/")[4];
 
-            String[] newActivity = new String[]{filename, activity};
+            String[] newActivity = new String[]{filename};
 
             if (filename.equals("")) {
                 Intent newActivityIntent = new Intent("new_activity");

@@ -9,10 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.hardware.Sensor;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
@@ -22,10 +20,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -46,29 +42,16 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     public static final String TAG  = "MainActivity";
 
-    //Set the specific sensors to be used throughout the app
-    public final static short TYPE_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
-
-    public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_PHONE";
     public static int PATIENT_ID = -1;
     public static final String START_ACTIVITY_PATH = "/start/MainActivity";
     public static final String STOP_ACTIVITY_PATH = "/stop/MainActivity";
 
     private static boolean POLAR = false;
-    private Intent intentSensing;
 
-    private TextView activitySelected;// = "Nothing";
     private GoogleApiClient mGoogleApiClient;
     private FusedLocationProviderClient fusedLocationClient;
     public static TextView lonTextView;
@@ -98,7 +81,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     public void init() {
 
-        intentSensing = new Intent(this, SensorService.class);
 
         //*************
         //***Sensors***
@@ -127,14 +109,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     clickedCheckbox.setChecked(false);
                     clickedLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
 
-                    if (activitySelected != null) {
-
-                        CardView activityCard = (CardView) activitySelected.getParent().getParent();
-
-                        activityCard.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                        activitySelected = null;
-                    }
-
                     if (clickedCheckbox.getId() == R.id.polarCheckbox) {
                         stopPolar();
                     }
@@ -148,14 +122,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     final View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.filename_prompt, null);
 
                     final EditText patient_id_text = dialogView.findViewById(R.id.activityPerformed);
-                    final ToggleButton phoneLocBtn = dialogView.findViewById(R.id.phoneLocationBtn);
-                    if (clickedCheckbox.getId() == R.id.polarCheckbox) {
-                        phoneLocBtn.setTextOn("Right");
-                        phoneLocBtn.setTextOff("Left");
-                    } else {
-                        phoneLocBtn.setTextOn("Label");
-                        phoneLocBtn.setTextOff("Pocket");
-                    }
+
                     filenameBuilder.setView(dialogView)
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 @Override
@@ -181,23 +148,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                                         PATIENT_ID = Integer.parseInt(patient_id_text.getText().toString());
 
                                         if (clickedCheckbox.getId() == R.id.polarCheckbox) {
-                                            if (phoneLocBtn.isChecked()) {
-                                                dataFile += "_right_labels";
-                                            } else {
-                                                dataFile += "_left_pocket";
-                                            }
-                                        } else {
-                                            if (phoneLocBtn.isChecked()) {
-                                                dataFile += "_labels";
-                                            } else {
-                                                dataFile += "_pocket";
-                                            }
-                                        }
-
-                                        if (clickedCheckbox.getId() == R.id.polarCheckbox) {
-                                            startPolar(dataFile, ""); //(activitySelected.getText().toString(), dataFile);
-                                        } else {
-                                            startSensing(dataFile, "");
+                                            startPolar(dataFile); //(activitySelected.getText().toString(), dataFile);
                                         }
                                     }
 
@@ -238,87 +189,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         };
         locationSelect.setOnClickListener(locationClick);
 
-
-        //****************
-        //***Activities***
-        //****************
-        final CardView otherSelect = findViewById(R.id.otherSelect);
-
-        final List<CardView> activities = new ArrayList<>(Arrays.asList(otherSelect));
-
-        View.OnClickListener activityClick = new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                for (CardView card : activities) {
-                    if (card.getId() == v.getId()){
-                        card.setBackgroundColor(Color.parseColor("#00e676"));
-                        activitySelected = ((TextView) ((LinearLayout) card.getChildAt(0)).getChildAt(1));//.getText().toString();
-                        final CheckBox polarCheckbox = findViewById(R.id.polarCheckbox);
-                        if (activitySelected.getText().toString().equals("Other")) {
-                            startSensing("", "");
-
-                            AlertDialog.Builder otherActivityBuilder = new AlertDialog.Builder(MainActivity.this);
-
-                            @SuppressLint("Inflateparams")
-                            final View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.other_activity, null);
-
-                            final EditText actualActivity = dialogView.findViewById(R.id.activityPerformed);
-
-                            otherActivityBuilder.setView(dialogView)
-                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            TextView otherActivity = findViewById(R.id.otherActivityLabel);
-                                            otherActivity.setVisibility(View.INVISIBLE);
-                                            if (actualActivity.getText().toString().equals("")) {
-                                                TextView error = findViewById(R.id.error);
-                                                error.setText(R.string.select_activity_prompt);
-                                                error.setVisibility(View.VISIBLE);
-                                            } else {
-                                                TextView error = findViewById(R.id.error);
-                                                error.setVisibility(View.INVISIBLE);
-
-                                                otherActivity.setText(actualActivity.getText().toString());
-                                                otherActivity.setVisibility(View.VISIBLE);
-                                                //activitySelected = actualActivity;
-                                                if (polarCheckbox.isChecked()) {
-                                                    startPolar("", actualActivity.getText().toString());
-                                                }
-                                            }
-
-                                            dialog.dismiss();
-                                        }
-                                    })
-                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            TextView error = findViewById(R.id.error);
-                                            error.setText(R.string.select_activity_prompt);
-                                            error.setVisibility(View.INVISIBLE);
-
-                                            CardView otherSelect = findViewById(R.id.otherSelect);
-
-                                            otherSelect.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                                            dialog.dismiss();
-                                        }
-                                    });
-
-                            otherActivityBuilder.setCancelable(false);
-                            otherActivityBuilder.create().show();
-                        } else {
-                            if (polarCheckbox.isChecked()) {
-                                startPolar("", activitySelected.getText().toString());
-                            }
-                        }
-                    } else {
-                        card.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                    }
-                }
-            }
-        };
-
-        otherSelect.setOnClickListener(activityClick);
     }
 
     @Override
@@ -353,8 +223,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                                 } else {
                                     latTextView.setText(location.getLatitude()+"");
                                     lonTextView.setText(location.getLongitude()+"");
-                                    Log.d("LOCATION", ""+location.getLatitude());
-                                    Log.d("LOCATION", ""+location.getLongitude());
+                                    Log.d("LOCATION", ""+location.getLatitude()+", "+location.getLongitude());
 
                                 }
                             }
@@ -429,43 +298,19 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         }
     }
 
-    private void startSensing(String filename, String otherActivity){
-        Log.d(TAG, "Starting Sensing...");
-
-        String activity = otherActivity;
-        if (activitySelected == null){
-            activity = "Nothing";
-        } else if (otherActivity == ""){
-            activity = activitySelected.getText().toString();
-        }
-
-        intentSensing.putExtra(ACTIVITY, activity);
-        intentSensing.putExtra(ACTIVITY, activity);
-        intentSensing.putExtra(Integer.toString(PATIENT_ID), filename);
-        startService(intentSensing);
-
-    }
-
-    private void startPolar(String curFilename, String curActivity) {
+    private void startPolar(String curFilename) {
         Log.d(TAG, "Starting Polar...");
         POLAR = true;
         locRunning = true;
         collectLocationData();
 
-        if (activitySelected == null){
-            curActivity = "Nothing";
-        } else if (curActivity.equals("")){
-            curActivity = activitySelected.getText().toString();
-        }
-
-        final String activity = curActivity;
         final String patient_id = curFilename;
 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
             public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
                 for (Node node : getConnectedNodesResult.getNodes()) {
-                    sendMessage(node.getId(), START_ACTIVITY_PATH + "/" + patient_id + "/" + activity);
+                    sendMessage(node.getId(), START_ACTIVITY_PATH + "/" + patient_id);
                 }
             }
         });
@@ -497,18 +342,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 }
             }
         });
-        stopSensing();
-    }
-
-    private void stopSensing(){
-        Log.d(TAG, "Stopping Sensing...");
-        stopService(intentSensing);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        setIntent(intent);
-        super.onNewIntent(intent);
     }
 
     private void collectLocationData() {
@@ -539,45 +372,4 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     }
 }
 
-final class MongoLabSaveContact extends AsyncTask<Object, Void, Boolean> {
-    @Override
-    protected Boolean doInBackground(Object... params) {
-        MyEntry entry = (MyEntry) params[0];
-        Log.d("entry", ""+entry);
-
-        try {
-            SupportData sd = new SupportData();
-            URL url = new URL(sd.buildEntriesSaveURL());
-
-            HttpURLConnection connection = (HttpURLConnection) url
-                    .openConnection();
-            connection.setRequestMethod("PUT");
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type",
-                    "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-
-            OutputStreamWriter osw = new OutputStreamWriter(
-                    connection.getOutputStream());
-
-            osw.write(sd.createEntry(entry));
-            osw.flush();
-            osw.close();
-
-            if(connection.getResponseCode() <205)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-
-        } catch (Exception e) {
-            e.getMessage();
-            Log.d("Got error", e.getMessage());
-            return false;
-        }
-    }
-}
 

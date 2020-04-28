@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
@@ -32,15 +31,13 @@ public class MainActivity extends WearableActivity {
     public final static short TYPE_ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
     public final static short TYPE_HEART = Sensor.TYPE_HEART_RATE;
 
-    public static String ACTIVITY = "com.srl.polardatacollection.ACTIVITY_WEAR";
     public static int PATIENT_ID = -1;
 
     private static GoogleApiClient mGoogleApiClient;
 
     private Intent intentSensing;
     private PowerManager.WakeLock mWakeLock;
-    String activity;
-    String filename;
+    String uid;
     String patient_id_string;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +54,9 @@ public class MainActivity extends WearableActivity {
         setAmbientEnabled();
 
         newActivity = getIntent().getStringArrayExtra("NEW_ACTIVITY");
-        filename = newActivity[0];
-        patient_id_string = filename.split("_")[0];
+        uid = newActivity[0];
+        patient_id_string = uid.split("_")[0];
         PATIENT_ID = Integer.parseInt(patient_id_string);
-        activity = newActivity[1];
         finishReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -77,9 +73,8 @@ public class MainActivity extends WearableActivity {
                 String action = intent.getAction();
                 if (action != null && action.equals("new_activity")) {
                     newActivity = intent.getStringArrayExtra("NEW_ACTIVITY");
-                    filename = newActivity[0];
-                    activity = newActivity[1];
-                    startSensing(filename, activity);
+                    uid = newActivity[0];
+                    startSensing(uid);
 
                 }
             }
@@ -96,25 +91,14 @@ public class MainActivity extends WearableActivity {
 
         mWakeLock.acquire();
 
-        File traceFile = new File(this.getExternalFilesDir(null), filename + ".csv");
-        int fileNumber = 1;
-        String testFilename = filename;
-        while (traceFile.exists()) {
-            testFilename = filename + fileNumber;
-            traceFile = new File(this.getExternalFilesDir(null), testFilename + ".csv");
-            fileNumber += 1;
-        }
-        filename = testFilename;
-        System.out.println(filename);
-        startSensing(filename, activity);
+        startSensing(uid);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         newActivity = getIntent().getStringArrayExtra("NEW_ACTIVITY");
-        filename = newActivity[0];
-        activity = newActivity[1];
-        startSensing(filename, activity);
+        String uid = newActivity[0];
+        startSensing(uid);
     }
 
     public void onDestroy() {
@@ -127,11 +111,10 @@ public class MainActivity extends WearableActivity {
         stopSensing();
     }
 
-    private void startSensing(String filename, String activity){
+    private void startSensing(String uid){
         Log.d(TAG, "Starting Sensing...");
 
-        intentSensing.putExtra(ACTIVITY, activity);
-        intentSensing.putExtra(Integer.toString(PATIENT_ID), filename);
+        intentSensing.putExtra(Integer.toString(PATIENT_ID), uid);
         startService(intentSensing);
 
     }
@@ -152,18 +135,7 @@ public class MainActivity extends WearableActivity {
                 for (int i = 0; i< nodes1.size(); i++) {
                     final Node node = nodes1.get(i);
 
-                    // You can just send a message
                     Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), "/MESSAGE", null);
-
-                    // or you may want to also check check for a result:
-                    // final PendingResult<SendMessageResult> pendingSendMessageResult = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), "/MESSAGE", null);
-                    // pendingSendMessageResult.setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
-                    //      public void onResult(SendMessageResult sendMessageResult) {
-                    //          if (sendMessageResult.getStatus().getStatusCode()==WearableStatusCodes.SUCCESS) {
-                    //              // do something is successed
-                    //          }
-                    //      }
-                    // });
                 }
             }
         });
